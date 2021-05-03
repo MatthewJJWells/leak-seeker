@@ -138,3 +138,32 @@ describe('/addfault POST endpoint', () => {
 
   afterEach(resetTestDatabase);
 });
+
+describe('/search/:reg GET endpoint', () => {
+  it('Get searched data', async () => {
+    await request(app)
+      .post('/addfault')
+      .send(mockData[0]);
+    await request(app)
+      .post('/addfault')
+      .send(mockData[1]);
+    const response = await request(app).get(`/search/${mockData[0].reg}`);
+    assert.strictEqual(response.statusCode, 200);
+    const data = JSON.parse(response.text);
+    assert.strictEqual(data.make, mockData[0].make);
+    assert.strictEqual(data.model, mockData[0].model);
+    assert.strictEqual(data.faults[0].summary, mockData[0].faults[0].summary);
+  });
+
+  it('Respond with 400 status code on bad request', async () => {
+    const response = await request(app).get(`/search/badrequest`);
+    assert.strictEqual(response.statusCode, 400);
+    await request(app)
+      .post('/addfault')
+      .send(mockData[0]);
+    const response2 = await request(app).get(`/search/badrequest`);
+    assert.strictEqual(response2.statusCode, 400);
+  });
+
+  afterEach(resetTestDatabase);
+});
