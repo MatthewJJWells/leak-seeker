@@ -167,3 +167,23 @@ describe('/search/:reg GET endpoint', () => {
 
   afterEach(resetTestDatabase);
 });
+
+describe('checkIfVehicleExists() function', () => {
+  it('Return null if vehicle does not exist', async () => {
+    const response = await checkIfVehicleExists(mockData[0]);
+    assert.strictEqual(response, null);
+  });
+
+  it('Return data if vehicle does exist', async () => {
+    await request(app)
+      .post('/addfault')
+      .send(mockData[0]);
+
+    const data = await checkIfVehicleExists(mockData[0]);
+    assert.strictEqual(data.make, mockData[0].make);
+    assert.strictEqual(data.model, mockData[0].model);
+    assert.strictEqual(data.faults[0].summary, mockData[0].faults[0].summary);
+  });
+
+  afterEach(resetTestDatabase);
+});
