@@ -187,3 +187,23 @@ describe('checkIfVehicleExists() function', () => {
 
   afterEach(resetTestDatabase);
 });
+
+describe('checkIfRegExists() function', async () => {
+  it('Return null if registration does not exist', async () => {
+    const response = await checkIfRegExists(mockData[0]);
+    assert.strictEqual(response, null);
+  });
+
+  it('Return data if registration does exist', async () => {
+    await request(app)
+      .post('/addfault')
+      .send(mockData[0]);
+
+    const data = await checkIfRegExists(mockData[0]);
+    assert.strictEqual(data.reg, mockData[0].reg);
+    assert.strictEqual(data.make, mockData[0].make);
+    assert.strictEqual(data.model, mockData[0].model);
+  });
+
+  afterEach(resetTestDatabase);
+});
