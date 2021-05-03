@@ -16,3 +16,8 @@ helper functions
 checkIfVehicleExists()
 checkIfRegExists()
 */
+
+async function resetTestDatabase () {
+  await mongooseRegModel.deleteMany({}, () => {});
+  await mongooseVehicleModel.deleteMany({}, () => {});
+}
