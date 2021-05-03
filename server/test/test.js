@@ -56,3 +56,33 @@ const mockData = [
     ]
   }
 ];
+
+describe('/getallfaults GET endpoint', () => {
+  it('Get data when database is empty', async () => {
+    const response = await request(app).get('/getallfaults');
+    assert.strictEqual(response.statusCode, 200);
+    const data = JSON.parse(response.text);
+    assert.strictEqual(data.length, 0);
+  });
+
+  it('Get data when database is populated', async () => {
+    await request(app)
+      .post('/addfault')
+      .send(mockData[0]);
+    await request(app)
+      .post('/addfault')
+      .send(mockData[1]);
+
+    const response = await request(app).get('/getallfaults');
+    assert.strictEqual(response.statusCode, 200);
+    const data = JSON.parse(response.text);
+    assert.strictEqual(data[0].make, mockData[0].make);
+    assert.strictEqual(data[0].model, mockData[0].model);
+    assert.strictEqual(data[0].faults[0].summary, mockData[0].faults[0].summary);
+    assert.strictEqual(data[1].make, mockData[1].make);
+    assert.strictEqual(data[1].model, mockData[1].model);
+    assert.strictEqual(data[1].faults[0].summary, mockData[1].faults[0].summary);
+  });
+
+  afterEach(resetTestDatabase);
+});
