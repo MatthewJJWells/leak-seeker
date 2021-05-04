@@ -12,13 +12,12 @@ describe("Left Side Bar", () => {
   it('Should Change once home clicked', async () => {
     
     
-    const onClick = jest.fn();
-    console.log('jest4231: ', onClick);
+    const setIntroPage = jest.fn();
 
-    render(<LeftSidebar onClick={onClick} query='' />);
+    render(<LeftSidebar onClick={setIntroPage} />);
 
-    fireEvent.change(screen.getByText("Home"), {target: {value: "searching for something"}});  });
-
-    expect(onClick).toHaveBeenCalledTimes(1);
-    expect(onClick).toHaveBeenCalledWith("searching for something", expect.anything());
+    fireEvent.change(screen.getByText("Home"));  
+    
+    expect(setIntroPage).toHaveBeenCalledWith(true);
+  });
 });
