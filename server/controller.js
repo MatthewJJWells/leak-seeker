@@ -34,17 +34,21 @@ const getFaultsFromReg = async function (req, res) {
 };
 
 // Add fault post request
-// ToDo -> add responses with interpolation to advise what has been done
 const addFault = async function (req, res) {
   const vehicleData = req.body;
-  let vehicleExists = false;
 
-  // If vehicle make & model exists, add new faults to existing record
-  if (await checkIfVehicleExists(vehicleData)) {
-    vehicleExists = true;
-    const record = await checkIfVehicleExists(vehicleData);
+  // If vehicle data exists in the database add new faults to existing record otherwise create a new record
+  const record = await checkIfVehicleExists(vehicleData);
+  if (record) {
     record.faults.push(...vehicleData.faults);
     await record.save();
+  } else {
+    const faultRecord = new mongooseVehicleModel({
+      make: vehicleData.make,
+      model: vehicleData.model,
+      faults: vehicleData.faults,
+    });
+    await faultRecord.save();
   }
 
   // If reg doesnt exist in db, add reg + make/ model to mock api collection db
@@ -56,15 +60,7 @@ const addFault = async function (req, res) {
     });
     await regRecord.save();
   }
-  // If vehicle fault record doesnt exist, create it
-  if (vehicleExists === false) {
-    const faultRecord = new mongooseVehicleModel({
-      make: vehicleData.make,
-      model: vehicleData.model,
-      faults: vehicleData.faults,
-    });
-    await faultRecord.save();
-  }
+
   res.status(200).end();
 };
 
