@@ -16,7 +16,7 @@ app.use(router);
 (async function bootstrap () {
   try {
     await app.listen(port);
-    console.log(`Server launched on port ${port} 🚀🚀🚀`)
+    console.log(`Server launched on port ${port} 🚀`)
   } catch (error) {
     console.log('Cannot connect to server ->', error)
   }
