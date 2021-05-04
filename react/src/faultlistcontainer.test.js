@@ -11,7 +11,7 @@ import FaultListContainer from "./containers/faultlistcontainer.jsx";
 describe("Fault List container", () => {
   it('Display basic Fault List elements', async () => {
     
-    render(<FaultListContainer/>);
+    const { component } = render(<FaultListContainer/>);
 
     expect(screen.getByText('Current Search:')).toBeInTheDocument();
     expect(screen.getByText('Make: ')).toBeInTheDocument();
