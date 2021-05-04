@@ -1,6 +1,3 @@
-// START DATABASE SERVER THING
-// npm init
-// npm i express cors mongoose dotenv
 require('dotenv').config();
 const express = require('express')
 const router = require('./router');

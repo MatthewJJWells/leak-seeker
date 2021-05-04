@@ -1,9 +1,7 @@
 const { mongooseRegModel, mongooseVehicleModel } = require('./mongoose-schema.js');
-
-// CHECK-IF-DATA-EXISTS HELPER FUNCTIONS
 const { checkIfVehicleExists, checkIfRegExists } = require('./helpers');
 
-// GET ALL VEHICLE RECORDS REQUEST
+// Get all vehicle records request
 const getFunction = async function (req, res) {
   try {
     const allDocs = await mongooseVehicleModel.find((err, docs) => {
@@ -15,7 +13,7 @@ const getFunction = async function (req, res) {
   }
 };
 
-// GET SPECIFIC VEHCILE RECORDS FROM REG REQUEST
+// Get specific vehcile records from reg request
 const getFaultsFromReg = async function (req, res) {
   try {
     const regToVehicle = await mongooseRegModel.findOne(
@@ -35,13 +33,13 @@ const getFaultsFromReg = async function (req, res) {
   }
 };
 
-// ADD FAULT POST REQUEST
-// TO-DO -> ADD RESPONSES WITH INTERPOLATION TO ADVISE WHAT HAS BEEN DONE
+// Add fault post request
+// ToDo -> add responses with interpolation to advise what has been done
 const addFault = async function (req, res) {
   const vehicleData = req.body;
   let vehicleExists = false;
 
-  // IF VEHICLE MAKE & MODEL EXISTS, ADD NEW FAULTS TO EXISTING RECORD
+  // If vehicle make & model exists, add new faults to existing record
   if (await checkIfVehicleExists(vehicleData)) {
     vehicleExists = true;
     const record = await checkIfVehicleExists(vehicleData);
@@ -49,7 +47,7 @@ const addFault = async function (req, res) {
     await record.save();
   }
 
-  // IF REG DOESNT EXIST IN DB, ADD REG + MAKE/ MODEL TO MOCK API COLLECTION DB
+  // If reg doesnt exist in db, add reg + make/ model to mock api collection db
   if (!(await checkIfRegExists(vehicleData))) {
     const regRecord = new mongooseRegModel({
       reg: vehicleData.reg,
@@ -58,7 +56,7 @@ const addFault = async function (req, res) {
     });
     await regRecord.save();
   }
-  // IF VEHICLE FAULT RECORD DOESNT EXIST, CREATE IT
+  // If vehicle fault record doesnt exist, create it
   if (vehicleExists === false) {
     const faultRecord = new mongooseVehicleModel({
       make: vehicleData.make,
