@@ -134,7 +134,7 @@ describe('/addfault POST endpoint', () => {
     const response2 = await request(app).get('/getallfaults');
     const data = JSON.parse(response2.text);
     assert.strictEqual(data.length, 0);
-  })
+  });
 
   afterEach(resetTestDatabase);
 });

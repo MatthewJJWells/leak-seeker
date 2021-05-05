@@ -1,128 +1,79 @@
 const { mongooseRegModel, mongooseVehicleModel } = require('./mongoose-schema.js');
-
-// CHECK-IF-DATA-EXISTS HELPER FUNCTIONS
 const { checkIfVehicleExists, checkIfRegExists } = require('./helpers');
 
-// GET ALL VEHICLE RECORDS REQUEST
+// Get all vehicle records request
 const getFunction = async function (req, res) {
   try {
     const allDocs = await mongooseVehicleModel.find((err, docs) => {
       return docs;
     });
-    // find one doc from collection
-    // const vehicleRecord = await mongooseVehicleModel.findOne({ name: 'test' }, (err, docs) => {console.log('findOne = ', docs)})
     res.status(200).send(allDocs);
-    console.log('get request success');
   } catch (error) {
     console.error('Failed to get document from database, error -> ', error);
   }
 };
 
-// THIS WILL BE THE MAIN GET REQUEST
-// GET SPECIFIC VEHCILE RECORDS FROM REG REQUEST
+// Get specific vehcile records from reg request
 const getFaultsFromReg = async function (req, res) {
-  console.log(req.params.reg)
   try {
     const regToVehicle = await mongooseRegModel.findOne(
       { reg: req.params.reg },
-      // (err, record) => {
-        // console.log('regToVehicle = ', record);
-      // }
-    );
+      );
+    
+    if (regToVehicle === null) res.status(400).end();
+    else {
+      const vehicleRecord = await mongooseVehicleModel.findOne(
+        {
+          make: regToVehicle.make,
+          model: regToVehicle.model,
+        }
+      );
+      res.status(200).send(vehicleRecord);
+    }
 
-    const vehicleRecord = await mongooseVehicleModel.findOne(
-      {
-        make: regToVehicle.make,
-        model: regToVehicle.model,
-      },
-      // (err, record) => {
-        // console.log('vehicleRecord = ', record);
-      // }
-    );
-
-    res.status(200).send(vehicleRecord);
-    console.log('get request success, send data -> ', vehicleRecord);
   } catch (error) {
     console.error('Failed to get document from database, error -> ', error);
   }
 };
 
-// ADD FAULT POST REQUEST
-// TO-DO -> ADD RESPONSES WITH INTERPOLATION TO ADVISE WHAT HAS BEEN DONE
+// Add fault post request
 const addFault = async function (req, res) {
-  let requestBody = req.body;
-  console.log(requestBody.faults)
-  let veh = false;
-
-  // IF VEHICLE MAKE & MODEL EXISTS, ADD NEW FAULTS TO EXISTING RECORD
-  if (await checkIfVehicleExists(requestBody)) {
-    veh = true;
-    let record = await checkIfVehicleExists(requestBody);
-    record.faults.push(...requestBody.faults);
+  const vehicleData = req.body;
+  if (!validateVehicleData(vehicleData)) res.status(400).end();
+  // If vehicle data exists in the database add new faults to existing record otherwise create a new record
+  const record = await checkIfVehicleExists(vehicleData);
+  if (record) {
+    record.faults.push(...vehicleData.faults);
     await record.save();
+  } else {
+    const faultRecord = new mongooseVehicleModel({
+      make: vehicleData.make,
+      model: vehicleData.model,
+      faults: vehicleData.faults,
+    });
+    await faultRecord.save();
   }
 
-  // IF REG DOESNT EXIST IN DB, ADD REG + MAKE/ MODEL TO MOCK API COLLECTION DB
-  if (!(await checkIfRegExists(requestBody))) {
+  // If reg doesnt exist in db, add reg + make/ model to mock api collection db
+  if (!(await checkIfRegExists(vehicleData))) {
     const regRecord = new mongooseRegModel({
-      reg: requestBody.reg,
-      make: requestBody.make,
-      model: requestBody.model,
+      reg: vehicleData.reg,
+      make: vehicleData.make,
+      model: vehicleData.model,
     });
     await regRecord.save();
   }
-  // IF VEHICLE FAULT RECORD DOESNT EXIST, CREATE IT
-  if (veh === false) {
-    const faultRecord = new mongooseVehicleModel({
-      make: requestBody.make,
-      model: requestBody.model,
-      faults: requestBody.faults,
-    });
-    await faultRecord.save();
-    // EDIT THIS
-    res.status(200).send(`Saved POST request to database`);
-  }
+
+  res.status(200).end();
 };
 
-// PUT / UPDATE REQUEST
-const updateFunction = async function (req, res) {
-  // // MIGHT BE AN OBJECT, MAYBE NEEDS DESTRUCTURING
-  // const { name, newValue } = req.params;
-  // // console.log(name, newValue)
-  // try {
-  //   // Returns an array, we want the json object
-  //   const doc = await mongooseModel.find({ name: name });
-  //   doc[0].age = newValue;
-  //   console.log(doc);
-  //   await doc[0].save();
-  //   res.send(`Update request success`);
-  // } catch (error) {
-  //   console.error(
-  //     'Failed to find and update document from database, error -> ',
-  //     error
-  //   );
-  // }
-};
-
-// DELETE REQUEST
-const deleteFunction = async function (req, res) {
-  // const { name } = req.params;
-  // console.log(name);
-  // try {
-  //   await mongooseModel.findOneAndRemove({ name: name });
-  //   res.send(`Delete request success`);
-  // } catch (error) {
-  //   console.error(
-  //     'Failed to find and remove document from database, error -> ',
-  //     error
-  //   );
-  // }
+const validateVehicleData = function (data) {
+  if ('make' in data && 'model' in data && 'faults' in data) return true
+  return false;
 };
 
 module.exports = {
   getFunction,
   getFaultsFromReg,
-  addFault,
-  updateFunction,
-  deleteFunction,
+  addFault
 };

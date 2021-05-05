@@ -3,7 +3,6 @@ const {
   mongooseVehicleModel,
 } = require('./mongoose-schema.js');
 
-// HELPER FUNCTIONS FOR POST REQUEST
 const checkIfVehicleExists = async function (newFaultRecord) {
   return await mongooseVehicleModel.findOne(
     {
