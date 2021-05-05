@@ -18,16 +18,19 @@ const getFaultsFromReg = async function (req, res) {
   try {
     const regToVehicle = await mongooseRegModel.findOne(
       { reg: req.params.reg },
-    );
+      );
+    
+    if (regToVehicle === null) res.status(400).end();
+    else {
+      const vehicleRecord = await mongooseVehicleModel.findOne(
+        {
+          make: regToVehicle.make,
+          model: regToVehicle.model,
+        }
+      );
+      res.status(200).send(vehicleRecord);
+    }
 
-    const vehicleRecord = await mongooseVehicleModel.findOne(
-      {
-        make: regToVehicle.make,
-        model: regToVehicle.model,
-      }
-    );
-
-    res.status(200).send(vehicleRecord);
   } catch (error) {
     console.error('Failed to get document from database, error -> ', error);
   }
@@ -36,7 +39,7 @@ const getFaultsFromReg = async function (req, res) {
 // Add fault post request
 const addFault = async function (req, res) {
   const vehicleData = req.body;
-
+  if (!validateVehicleData(vehicleData)) res.status(400).end();
   // If vehicle data exists in the database add new faults to existing record otherwise create a new record
   const record = await checkIfVehicleExists(vehicleData);
   if (record) {
@@ -62,6 +65,11 @@ const addFault = async function (req, res) {
   }
 
   res.status(200).end();
+};
+
+const validateVehicleData = function (data) {
+  if ('make' in data && 'model' in data && 'faults' in data) return true
+  return false;
 };
 
 module.exports = {
