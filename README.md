@@ -1,5 +1,7 @@
-# leak-seeker
+# Leak Seeker
 Leak Seeker allows users to search for common faults with a specific car or log a fault to see if other users have similar issues. 
+
+![Leak-Seaker-Screenshot](https://github.com/MatthewJJWells/leak-seeker/blob/master/react/src/images/Screen%20Shot%202021-05-06%20at%2006.52.00.png)
 
 ## Getting Started
 
