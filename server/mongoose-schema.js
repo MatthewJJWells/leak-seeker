@@ -4,7 +4,7 @@ const mongoose = require('./model.js');
 const vehCollection = process.env.VEHICLECOLLECTION;
 const regCollection = process.env.REGCOLLECTION;
 
-// FAULT RECORD SCHEMA
+// Fault record schema
 const vehicleData = new mongoose.Schema({
   make: {
     type: 'String',
@@ -39,7 +39,7 @@ const vehicleData = new mongoose.Schema({
   }]
 });
 
-// API MOCK REG SEARCH RESULT SCHEMA
+// API mock reg search result schema
 const regToModel = new mongoose.Schema({
   reg: {
     type: String,
